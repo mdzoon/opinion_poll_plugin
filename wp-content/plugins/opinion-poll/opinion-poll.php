@@ -52,6 +52,7 @@ if ( !class_exists( 'Opinion Poll' ) ) {
                     wp_enqueue_script( 'opinion-poll', plugin_dir_url( __FILE__ ) . 'js/opinion-poll.js', [], '0.1', true );
                     wp_add_inline_script( 'opinion-poll', 'window.ajaxurl = "' . admin_url( 'admin-ajax.php' ) . '"');
                     wp_enqueue_style( 'opinion-poll', plugin_dir_url( __FILE__ ) . 'css/opinion-poll.css', [], '0.1' );
+                    wp_enqueue_style( 'op-bootstrap', "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css");
                 }
             }
         }
