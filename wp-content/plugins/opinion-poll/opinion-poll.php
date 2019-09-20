@@ -19,7 +19,7 @@ if ( !class_exists( 'Opinion Poll' ) ) {
         public function register() {
             add_shortcode( $this->shortcode_name, [$this, 'shortcode'] );
             add_action( 'wp_enqueue_scripts', [$this, 'scripts'] );
-            add_action( 'wp_ajax_nopriv_submit_opinion_poll_data', [$this, 'submit_poll_data'] );
+            add_action( 'wp_ajax_nopriv_submit_poll_data', [$this, 'submit_poll_data'] );
             add_action( 'wp_ajax_nopriv_get_opinion_poll_data', [$this, 'get_poll_data'] );
         }
         public function shortcode( $atts ) { 
@@ -56,7 +56,8 @@ if ( !class_exists( 'Opinion Poll' ) ) {
                 }
             }
         }
-        public function submit_poll() {
+
+        public function submit_poll_data() {
             $id = sanitize_title_with_dashes( $_GET['id'], '', 'save' );
             $answer = sanitize_text_field( $_GET['answer'] );
             $option_name = 'opinion-poll_' . $id;
@@ -66,6 +67,7 @@ if ( !class_exists( 'Opinion Poll' ) ) {
             update_option( $option_name, $option_value );
             exit( 'success' );
         }
+
         public function get_poll_data() {
             $id = sanitize_title_with_dashes( $_GET['id'], '', 'save' );
             $option_name = 'opinion-poll_' . $id;

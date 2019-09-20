@@ -1,8 +1,10 @@
 #opinion-poll ul {
 	list-style-type: none;
+	padding-left: 0;
 }
 #opinion-poll ul>li {
 	margin: 1rem;
+	line-height: 1.6;
 }
 #opinion-poll button {
 	margin: 1rem 2rem;

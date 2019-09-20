@@ -11,8 +11,7 @@ function createPoll() {
 
     elements.forEach( function( element ) {
         
-        let opData = JSON.parse( element.getAttribute('data-poll-atts') );
-            this.opData = opData; //?
+        this.opData = JSON.parse( element.getAttribute('data-poll-atts') );
         
         let pollContainer = document.createElement("div")
             setAttributes(pollContainer,
@@ -33,9 +32,10 @@ function createPoll() {
 
         let df = document.createDocumentFragment();
             df = document.getElementById(this.opData.id)
-            form =document.createElement("form");
+            form = document.createElement("form");
             setAttributes(form, {
-                "onsubmit": "alert('Submit!'); return false"
+                "id": "opForm",
+                "onsubmit": "submitPoll(); return false"
             })
             ul = document.createElement("ul");
 
@@ -80,23 +80,21 @@ function createPoll() {
 
         df.appendChild(form);
     });
-
-    console.log(opData); //debug
-    for (let [key, value] of Object.entries(opData.answers)) {
-        let answer = key
-        document.getElementById(answer).onclick = console.log('You clicked answer No: ' + answer);
-    }
 }; 
 
 function submitPoll() {
+    this.selectedAnswer = document.forms.opForm.answer.value
+
     if (null === this.selectedAnswer) return; //do not run if no answer is selected
-    var queryString = '?action=op_submit_poll&id=' + this.opData.id + '&answer=' + this.selectedAnswer;
-    console.log(queryString); //debug
+
+    var queryString = '?action=submit_poll_data&id=' + this.opData.id + '&answer=' + this.selectedAnswer;
     fetch(window.ajaxurl + queryString).then( function() {
-        this.$emit('submitted');
-        console.log('submitted!'); //debug
+       alert(this.selectedAnswer + ' - submitted!'); //debug
     }.bind(this) );
 };
+
+//function displayPollResults()
+
 
 function getAnswerRatio( key ) {
     var total = Object.values(this.results).reduce( function( acc, cur ) { return acc+cur; }, 0 );
