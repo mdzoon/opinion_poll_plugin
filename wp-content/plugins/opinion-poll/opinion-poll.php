@@ -20,7 +20,9 @@ if ( !class_exists( 'Opinion Poll' ) ) {
             add_shortcode( $this->shortcode_name, [$this, 'shortcode'] );
             add_action( 'wp_enqueue_scripts', [$this, 'scripts'] );
             add_action( 'wp_ajax_nopriv_submit_poll_data', [$this, 'submit_poll_data'] );
-            add_action( 'wp_ajax_nopriv_get_opinion_poll_data', [$this, 'get_poll_data'] );
+            add_action( 'wp_ajax_nopriv_get_poll_data', [$this, 'get_poll_data'] );
+            add_action( 'wp_ajax_submit_poll_data', [$this, 'submit_poll_data'] );
+            add_action( 'wp_ajax_get_poll_data', [$this, 'get_poll_data'] );
         }
         public function shortcode( $atts ) { 
             $answers = [];
