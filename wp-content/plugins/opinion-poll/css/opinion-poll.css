@@ -1,46 +1,38 @@
-#opinion-poll ul {
+#opinion-poll h4 {
+	margin-top: 0;
+}
+/* #opinion-poll ul {
 	list-style-type: none;
 	padding-left: 0;
 }
 #opinion-poll ul>li {
 	margin: 1rem;
 	line-height: 1.6;
-}
+}*/
 #opinion-poll button {
-	margin: 1rem 2rem;
+	display: block;
+	margin: 2rem auto;
 }
 
-.op-container {
-	background-color: #eee;
-	border: .5px solid #ccc;
-	padding: 1em;
-	border-radius: 3px;
-	margin-bottom: 1em;
+#opinion-poll label p {
+	display: inline-block;
+    position: absolute;
+    left: 0;
+	margin: 0;
+	/* get variables */
+    /*line-height: 1.6; */
+    text-align: right;
+    width: 100%;
 }
-.op-container .op-question label {
-	display: block;
-	margin-bottom: .5em;
-}
-
-.op-container .op-results p{
-	position: relative;
-	margin-bottom: 1em;
-}
-.op-container .op-results p span {
-	z-index: 5;
-	position: relative;
-	display: block;
-	padding-left: .5em;
-}
-.op-container .op-results p .percentage-bar{
-	display: block;
-	height: 100%;
-	width: 0;
+#opinion-poll label span {
 	position: absolute;
-	left: 0;
-	top: 0;
-	padding-left: 0;
-	background-color: rgba( 0,0,0,.08);
-	z-index: 1;
-	transition: width 1s ease-out;
-} 
+	left: 1.2rem;
+	height: 100%;
+	border-radius: .25rem;
+	background-color: rgba(0, 191, 255, 0.2);
+	/*tranisitions to work on*/
+	/* transition: width 1s ease-out;*/
+}
+#opinion-poll .show-error {
+	display: block;
+}

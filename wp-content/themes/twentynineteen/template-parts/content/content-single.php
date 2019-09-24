@@ -18,7 +18,7 @@
 	</header>
 	<?php endif; ?>
 
-	<div id="opinion-poll-wrapper" class="entry-content">
+	<div class="entry-content">
 		<?php
 		the_content(
 			sprintf(

@@ -59,6 +59,7 @@ if ( !class_exists( 'Opinion Poll' ) ) {
             }
         }
 
+        // save results to wp_options table
         public function submit_poll_data() {
             $id = sanitize_title_with_dashes( $_GET['id'], '', 'save' );
             $answer = sanitize_text_field( $_GET['answer'] );

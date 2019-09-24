@@ -1,71 +1,75 @@
-document.getElementById("opinion-poll-btn").onclick = createPoll;
+// (function() {
+    
+    // window.addEventListener('load', function() {
 
-function setAttributes(el, attrs) {
-    for(let key in attrs) {
-        el.setAttribute(key, attrs[key]);
-    }
-}
+        document.getElementById("opinion-poll-btn").onclick = readPollData;
 
-function getInputValue(text, el) {
-    const labels = document.getElementById("opForm").getElementsByClassName("custom-control-label");
-    for(let i = 0; i < labels.length; i++) {    
-        if (text == labels[i].childNodes[0].nodeValue) {
-            labels[i].appendChild(el);
+        // BOF helper functions
+
+        function setAttributes(el, attrs) {
+            for(let key in attrs) {
+                el.setAttribute(key, attrs[key]);
+            }
         };
-    };
-};
-
-function getAnswerRatio(key) {
-    var total = Object.values(this.results).reduce( function( acc, cur ) { return acc+cur; }, 0 );
-    var count = parseInt(this.results[key], 10) || 0;
-    return count + ' / ' + total;
-};
-
-function getAnswerStyle(key) {
-    var total = Object.values(this.results).reduce( function( acc, cur ) { return acc+cur; }, 0 );
-    var count = parseInt(this.results[key], 10) || 0;
-    var percentage = Math.round((count / total) * 100);
-    return 'width: '+ percentage + '%';
-};
- //helper functions
-
-function createPoll() { 
-    let elements = document.querySelectorAll('[data-poll-atts]');
-
-    elements.forEach( function( element ) {
         
-        this.opData = JSON.parse( element.getAttribute('data-poll-atts') );
+        function getInputValue(text, el) {
+            const labels = document.getElementById("opForm").getElementsByClassName("custom-control-label");
+            for(let i = 0; i < labels.length; i++) {    
+                if (text == labels[i].childNodes[0].nodeValue) {
+                    labels[i].appendChild(el);
+                };
+            };
+        };
         
-        let pollContainer = document.createElement("div")
-            setAttributes(pollContainer,
+        function getAnswerRatio(key) {
+            var total = Object.values(this.results).reduce( function( acc, cur ) { return acc+cur; }, 0 );
+            var count = parseInt(this.results[key], 10) || 0;
+            return count + ' / ' + total;
+        };
+        
+        function getAnswerStyle(key) {
+            var total = Object.values(this.results).reduce( function( acc, cur ) { return acc+cur; }, 0 );
+            var count = parseInt(this.results[key], 10) || 0;
+            var percentage = Math.round((count / total) * 100);
+            return 'width: '+ percentage + '%';
+        };
+        
+        // EOF helper functions
+        
+        function readPollData() { 
+            const elements = document.querySelectorAll('[data-poll-atts]'); //iterate through the object data 
+            elements.forEach( function(element) {
+                this.opData = JSON.parse( element.getAttribute('data-poll-atts') );
+                createPoll();
+            });
+        };
+        
+        function createPoll() {
+            const df = document.createDocumentFragment();
+            const button = document.getElementById("opinion-poll-btn");
+            let div = document.createElement("div");
+            setAttributes(div,
                 {
-                    "id": this.opData.id,
-                    "class": "op-container"
+                    "class": "op-wrapper card"
                 });
+            let h4 = document.createElement("h4");
+            setAttributes(h4,
+                {
+                    "class": "card-header"
+                });
+            h4.appendChild(document.createTextNode(this.opData.question));
+            div.appendChild(h4);
         
-        let anchorNode = document.getElementById("opinion-poll");
-            parentDiv = anchorNode.parentNode,
-            parentDiv.replaceChild(pollContainer, anchorNode);
-
-        let h4 = document.createElement("h4");
-            tn = document.createTextNode(this.opData.question),
-            h4.appendChild(tn);
-        
-        pollContainer.appendChild(h4);
-
-        df = document.createDocumentFragment();
-            df = document.getElementById(this.opData.id),
-            form = document.createElement("form"),
+            let form = document.createElement("form");
             setAttributes(form,
                 {
                 "id": "opForm",
-                "onsubmit": "submitPoll(); return false"
+                "onsubmit": "submitPoll(); return false",
                 });
-            ul = document.createElement("ul");
-
+        
+            let ul = document.createElement("ul");
             for (let [key, value] of Object.entries(this.opData.answers)) {
-                tn = document.createTextNode(value);
-                input = document.createElement("input");
+                let input = document.createElement("input");
                 setAttributes(input, 
                     {
                         "class": "custom-control-input",
@@ -74,92 +78,95 @@ function createPoll() {
                         "name": "answer",
                         "value": value,
                     });
-                label = document.createElement("label");
+                let label = document.createElement("label");
                 setAttributes(label, 
                     {   
                         "class": "custom-control-label",
                         "for": "answer-" + key,
-                    })
-                li = document.createElement("li");
+                    });
+                let li = document.createElement("li");
                 setAttributes(li, 
                     {
-                        "class": "custom-control custom-radio"
-                    })
-                label.append(tn);
+                        "class": "custom-control custom-radio mt-3"
+                    });
+                label.append(document.createTextNode(value));
                 li.appendChild(input);
                 li.appendChild(label);
                 ul.appendChild(li);
             };
             form.appendChild(ul);
-
-            let button = document.createElement("button");
-                tn = document.createTextNode("Cast your vote!");
-                setAttributes(button, 
-                    {   
-                        "id": this.opData.id + "-submit",
-                        "type": "submit",
-                        "class": "btn btn-outline-primary"
-                    });
-            button.appendChild(tn);
-            form.append(button);
-
-        df.appendChild(form);
-    });
-}; 
-
-function submitPoll() {
-    
-    this.selectedAnswer = document.forms.opForm.answer.value
-
-    if (null === this.selectedAnswer) return; //do not run if no answer is selected
-
-    var queryString = '?action=submit_poll_data&id=' + this.opData.id + '&answer=' + this.selectedAnswer;
-    fetch(window.ajaxurl + queryString).then( function() {
-       getPollData();
-    }.bind(this) );
-};
-
-function getPollData() {
-    var queryString = '?action=get_poll_data&id=' + this.opData.id
-    fetch( window.ajaxurl + queryString )
-        .then( function(response) { return response.json() } )
-        .then( function(json) {
-            this.results = json;
-                 
-            for (let [key, value] of Object.entries(this.results)) {
-                console.log(key, value);
-                let span = document.createElement("span");
-                span.appendChild(document.createTextNode(getAnswerRatio(key)))
-                setAttributes(span, 
+        
+            let btn = document.createElement("button");
+            setAttributes(btn, 
+                {   
+                    "type": "submit",
+                    "class": "btn btn-outline-primary",
+                });
+            btn.appendChild(document.createTextNode("Cast your vote"));
+        
+            let span = document.createElement("span");
+                setAttributes(span,
                     {
-                        "class": getAnswerStyle(key)
+                        "class": "invalid-feedback"
                     });
-                tn = document.createTextNode(key);
-                getInputValue(tn.nodeValue, span);
-            };
+                span.appendChild(document.createTextNode("Please choose the answer first!"));
+            form.appendChild(span);
             
-            oldButton = document.getElementById(this.opData.id + "-submit");
-            console.log(oldButton);
+            form.append(btn);
+        
+            div.appendChild(form);
+            df.appendChild(div);
+            button.parentNode.replaceChild(df, button);
+        };
 
-            let newButton = document.createElement("button");
-                tn = document.createTextNode("Fancy another vote?");
-                setAttributes(newButton, 
-                    {   
-                        "type": "submit",
-                        "class": "btn btn-outline-primary",
-                        "onclick": "removePoll()"
-                    });
-                newButton.appendChild(tn);
-            
-                console.log(newButton);
-            oldButton.parentNode.replaceChild(newButton, oldButton);
-               
-               
-        }.bind(this) );
-};
+        function submitPoll() {
+            this.selectedAnswer = document.forms.opForm.answer.value;
+            if ("" === this.selectedAnswer) {
+                document.getElementsByClassName("invalid-feedback")[0].classList.add("show-error");
+                return;
+            } else {
+                document.getElementsByClassName("invalid-feedback")[0].classList.remove("show-error"); 
+            }
+            const queryString = '?action=submit_poll_data&id=' + this.opData.id + '&answer=' + this.selectedAnswer;
+            fetch(window.ajaxurl + queryString).then( function() {
+               getPollData();
+            }.bind(this) );
+        };
+        
+        function getPollData() {
+            var queryString = '?action=get_poll_data&id=' + this.opData.id
+            fetch( window.ajaxurl + queryString )
+                .then( function(response) { return response.json() } )
+                .then( function(json) {
+                    this.results = json;
+                         
+                    for (let [key, value] of Object.entries(this.results)) {
+                        let p = document.createElement("p");
+                        setAttributes(p, 
+                            {
+                                "class": "op-results"
+                            });
+                        p.appendChild(document.createTextNode(getAnswerRatio(key)));
+                        let span = document.createElement("span");
+                        setAttributes(span, 
+                            {
+                                "style": getAnswerStyle(key)
+                            });
+                        p.appendChild(span);
+                        getInputValue(document.createTextNode(key).nodeValue, p);
+                        form = document.getElementById("opForm");
+                        form.getElementsByClassName("custom-control-label")[0].classList.remove("custom-control-label");
+                        //form.getElementsByClassName("custom-control")[0].classList.remove("custom-control");
+                        form.getElementsByClassName("custom-radio")[0].classList.add("form-sumbmitted");
+                    };
+                    
+                btn = document.getElementById("opForm").querySelector("button");
+                btn.parentNode.removeChild(btn);
+                                   
+                }.bind(this) );
+        };
 
-function removePoll() {
-    let el = document.getElementById(this.opData.id);
-    el.parentNode.removeChild(el);
-    createPoll();
-};
+    // }, false);
+//   })();
+
+
