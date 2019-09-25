@@ -1,6 +1,6 @@
-// (function() {
+(function() {
     
-    // window.addEventListener('load', function() {
+    window.addEventListener('load', function() {
 
         document.getElementById("opinion-poll-btn").onclick = readPollData;
 
@@ -12,6 +12,12 @@
             }
         };
         
+        function removeClasses(els, attr) {
+            for (var i = 0; i < els.length; i++) {
+              els[i].classList.remove(attr)
+            }
+        };
+
         function getInputValue(text, el) {
             const labels = document.getElementById("opForm").getElementsByClassName("custom-control-label");
             for(let i = 0; i < labels.length; i++) {    
@@ -31,9 +37,23 @@
             var total = Object.values(this.results).reduce( function( acc, cur ) { return acc+cur; }, 0 );
             var count = parseInt(this.results[key], 10) || 0;
             var percentage = Math.round((count / total) * 100);
-            return 'width: '+ percentage + '%';
+            return percentage;
         };
         
+        function animateResults(percentage, value) {
+            var elm = document.getElementById("width-" + value);
+            var width = 1;
+            var id = setInterval(frame, 30);
+            function frame() {
+                if (width >= percentage) {
+                    clearInterval(id);
+                } else {
+                    width++; 
+                    elm.style.width = width + '%'; 
+                }
+            };
+        };
+
         // EOF helper functions
         
         function readPollData() { 
@@ -61,10 +81,11 @@
             div.appendChild(h4);
         
             let form = document.createElement("form");
+            form.addEventListener("submit", submitPoll);
             setAttributes(form,
                 {
-                "id": "opForm",
-                "onsubmit": "submitPoll(); return false",
+                    "id": "opForm",
+                    "onsubmit": "return false"
                 });
         
             let ul = document.createElement("ul");
@@ -107,7 +128,7 @@
             let span = document.createElement("span");
                 setAttributes(span,
                     {
-                        "class": "invalid-feedback"
+                        "class": "invalid-feedback text-center"
                     });
                 span.appendChild(document.createTextNode("Please choose the answer first!"));
             form.appendChild(span);
@@ -127,7 +148,7 @@
             } else {
                 document.getElementsByClassName("invalid-feedback")[0].classList.remove("show-error"); 
             }
-            const queryString = '?action=submit_poll_data&id=' + this.opData.id + '&answer=' + this.selectedAnswer;
+            const queryString = '?action=submit_poll_data&id=' + opData.id + '&answer=' + this.selectedAnswer;
             fetch(window.ajaxurl + queryString).then( function() {
                getPollData();
             }.bind(this) );
@@ -149,24 +170,23 @@
                         p.appendChild(document.createTextNode(getAnswerRatio(key)));
                         let span = document.createElement("span");
                         setAttributes(span, 
-                            {
-                                "style": getAnswerStyle(key)
+                            {   
+                                "id": "width-" + value,
+                                "class": "rounded-right rounded-lg"
                             });
                         p.appendChild(span);
                         getInputValue(document.createTextNode(key).nodeValue, p);
-                        form = document.getElementById("opForm");
-                        form.getElementsByClassName("custom-control-label")[0].classList.remove("custom-control-label");
-                        //form.getElementsByClassName("custom-control")[0].classList.remove("custom-control");
-                        form.getElementsByClassName("custom-radio")[0].classList.add("form-sumbmitted");
+                        animateResults(getAnswerStyle(key), value);
                     };
-                    
+                
+                let labels = document.getElementById("opForm").getElementsByTagName("label");
+                removeClasses(labels, "custom-control-label");
+
                 btn = document.getElementById("opForm").querySelector("button");
                 btn.parentNode.removeChild(btn);
                                    
                 }.bind(this) );
         };
 
-    // }, false);
-//   })();
-
-
+    }, false);
+})();
