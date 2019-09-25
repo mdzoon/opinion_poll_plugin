@@ -40,8 +40,8 @@ if ( !class_exists( 'Opinion Poll' ) ) {
                 ]
             ));
             
-            return "<div id='opinion-poll' data-poll-atts='{$data_atts}'>
-                        <button id='opinion-poll-btn' class='btn btn-primary'>Take a part in our opinion poll</button>
+            return "<div id=" . $this->shortcode_name . " data-poll-atts='{$data_atts}'>
+                        <button id='" . $this->shortcode_name . "-btn' class='btn btn-primary'>Take a part in our opinion poll</button>
                     </div>";
         }
         // Only enqueue scripts if we're displaying a post that contains the shortcode 
@@ -63,7 +63,7 @@ if ( !class_exists( 'Opinion Poll' ) ) {
         public function submit_poll_data() {
             $id = sanitize_title_with_dashes( $_GET['id'], '', 'save' );
             $answer = sanitize_text_field( $_GET['answer'] );
-            $option_name = 'opinion-poll_' . $id;
+            $option_name = 'poll_data' . $id;
             $option_value = get_option( $option_name, [] );
             $answer_count = isset( $option_value[ $answer ] ) ? $option_value[ $answer ] : 0;
             $option_value[ $answer ] = $answer_count + 1;
@@ -73,7 +73,7 @@ if ( !class_exists( 'Opinion Poll' ) ) {
 
         public function get_poll_data() {
             $id = sanitize_title_with_dashes( $_GET['id'], '', 'save' );
-            $option_name = 'opinion-poll_' . $id;
+            $option_name = 'poll_data' . $id;
             $option_value = get_option( $option_name, [] );
             exit( json_encode( $option_value ) );
         }

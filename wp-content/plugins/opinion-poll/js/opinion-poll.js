@@ -43,7 +43,7 @@
         function animateResults(percentage, value) {
             var elm = document.getElementById("width-" + value);
             var width = 1;
-            var id = setInterval(frame, 30);
+            var id = setInterval(frame, 20);
             function frame() {
                 if (width >= percentage) {
                     clearInterval(id);
