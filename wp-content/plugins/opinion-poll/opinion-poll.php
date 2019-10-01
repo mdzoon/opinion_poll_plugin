@@ -19,8 +19,10 @@ if ( !class_exists( 'Opinion Poll' ) ) {
         public function register() {
             add_shortcode( $this->shortcode_name, [$this, 'shortcode'] );
             add_action( 'wp_enqueue_scripts', [$this, 'scripts'] );
+            add_action( 'wp_ajax_nopriv_set_poll_data', [$this, 'set_poll_data'] );
             add_action( 'wp_ajax_nopriv_submit_poll_data', [$this, 'submit_poll_data'] );
             add_action( 'wp_ajax_nopriv_get_poll_data', [$this, 'get_poll_data'] );
+            add_action( 'wp_ajax_set_poll_data', [$this, 'set_poll_data'] );
             add_action( 'wp_ajax_submit_poll_data', [$this, 'submit_poll_data'] );
             add_action( 'wp_ajax_get_poll_data', [$this, 'get_poll_data'] );
         }
@@ -59,11 +61,22 @@ if ( !class_exists( 'Opinion Poll' ) ) {
             }
         }
 
-        // save results to wp_options table
-        public function submit_poll_data() {
-            $id = sanitize_title_with_dashes( $_GET['id'], '', 'save' );
+        //save results to wp_options table
+       public function set_poll_data() {
+            $id = sanitize_title_with_dashes( $_GET['id'], 'save' );
             $answer = sanitize_text_field( $_GET['answer'] );
-            $option_name = 'poll_data' . $id;
+            $option_name = 'poll_data_' . $id;
+            $option_value = get_option( $option_name, [] );
+            $answer_count = isset( $option_value[ $answer ] ) ? $option_value[ $answer ] : 0;
+            $option_value[ $answer ] = $answer_count;
+            update_option( $option_name, $option_value );
+            exit( 'success' );
+        }
+
+        public function submit_poll_data() {
+            $id = sanitize_title_with_dashes( $_GET['id'], 'save' );
+            $answer = sanitize_text_field( $_GET['answer'] );
+            $option_name = 'poll_data_' . $id;
             $option_value = get_option( $option_name, [] );
             $answer_count = isset( $option_value[ $answer ] ) ? $option_value[ $answer ] : 0;
             $option_value[ $answer ] = $answer_count + 1;
@@ -73,7 +86,7 @@ if ( !class_exists( 'Opinion Poll' ) ) {
 
         public function get_poll_data() {
             $id = sanitize_title_with_dashes( $_GET['id'], '', 'save' );
-            $option_name = 'poll_data' . $id;
+            $option_name = 'poll_data_' . $id;
             $option_value = get_option( $option_name, [] );
             exit( json_encode( $option_value ) );
         }

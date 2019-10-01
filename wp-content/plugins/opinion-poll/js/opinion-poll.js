@@ -5,6 +5,20 @@
         document.getElementById("opinion-poll-btn").onclick = readPollData;
 
         // BOF helper functions
+        function isEmpty(obj) {
+            for(var key in obj) {
+                if(obj.hasOwnProperty(key))
+                    return false;
+            }
+            return true;
+        };
+
+        function setPollResults(id, answers) {
+            for (let answer in answers) {
+                let initialQueryString = '?action=set_poll_data&id=' + id + '&answer=' + answers[answer];
+                fetch(window.ajaxurl + initialQueryString);
+            }
+        };
 
         function setAttributes(el, attrs) {
             for(let key in attrs) {
@@ -40,13 +54,13 @@
             return percentage;
         };
         
-        function animateResults(percentage, value) {
-            var elm = document.getElementById("width-" + value);
+        function animateResults(percentage, key) {
+            var elm = document.getElementById(key);
             var width = 1;
-            var id = setInterval(frame, 20);
+            var animate = setInterval(frame, 20);
             function frame() {
                 if (width >= percentage) {
-                    clearInterval(id);
+                    clearInterval(animate);
                 } else {
                     width++; 
                     elm.style.width = width + '%'; 
@@ -56,15 +70,28 @@
 
         // EOF helper functions
         
-        function readPollData() { 
+        function readPollData() {
             const elements = document.querySelectorAll('[data-poll-atts]'); //iterate through the object data 
             elements.forEach( function(element) {
                 this.opData = JSON.parse( element.getAttribute('data-poll-atts') );
-                createPoll();
+                console.log(this.opData);
+                var queryString = '?action=get_poll_data&id=' + this.opData.id
+                fetch( window.ajaxurl + queryString )
+                    .then( function(response) { return response.json() } )
+                    .then( function(json) {
+                        this.results = json;
+                        console.log(this.results);
+                        if(isEmpty(this.results)) {
+                            console.log('No results!');                           
+                            setPollResults(this.opData.id, this.opData.answers);
+                        }
+                        console.log('results!');
+                        createPoll(this.opData);
+                    }.bind(this) );
             });
         };
         
-        function createPoll() {
+        function createPoll(opData) {
             const df = document.createDocumentFragment();
             const button = document.getElementById("opinion-poll-btn");
             let div = document.createElement("div");
@@ -77,7 +104,7 @@
                 {
                     "class": "card-header"
                 });
-            h4.appendChild(document.createTextNode(this.opData.question));
+            h4.appendChild(document.createTextNode(opData.question));
             div.appendChild(h4);
         
             let form = document.createElement("form");
@@ -89,7 +116,7 @@
                 });
         
             let ul = document.createElement("ul");
-            for (let [key, value] of Object.entries(this.opData.answers)) {
+            for (let [key, value] of Object.entries(opData.answers)) {
                 let input = document.createElement("input");
                 setAttributes(input, 
                     {
@@ -162,6 +189,7 @@
                     this.results = json;
                          
                     for (let [key, value] of Object.entries(this.results)) {
+                        console.log(key, value);
                         let p = document.createElement("p");
                         setAttributes(p, 
                             {
@@ -171,12 +199,12 @@
                         let span = document.createElement("span");
                         setAttributes(span, 
                             {   
-                                "id": "width-" + value,
+                                "id": key,
                                 "class": "rounded-right rounded-lg"
                             });
                         p.appendChild(span);
                         getInputValue(document.createTextNode(key).nodeValue, p);
-                        animateResults(getAnswerStyle(key), value);
+                        animateResults(getAnswerStyle(key), key);
                     };
                 
                 let labels = document.getElementById("opForm").getElementsByTagName("label");

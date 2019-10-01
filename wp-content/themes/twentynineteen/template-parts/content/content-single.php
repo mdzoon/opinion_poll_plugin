@@ -19,6 +19,7 @@
 	<?php endif; ?>
 
 	<div class="entry-content">
+	<div id="league-table"></div>
 		<?php
 		the_content(
 			sprintf(
